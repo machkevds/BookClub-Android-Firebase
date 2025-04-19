@@ -1,4 +1,4 @@
-package com.kds.moveamenable.screens
+package com.kds.moveamenable.ui.screens
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -39,8 +39,8 @@ import com.kds.moveamenable.navigation.Routes
 
 
 @Suppress("UNUSED_PARAMETER")
+//todo
 //Keep navController if you might need to:
-//
 //Navigate to other screens (e.g., settings, stats, or different focus modes)
 //Button(onClick = { navController.navigate("settings") }) { ... }
 
@@ -68,7 +68,7 @@ fun FocusScreen(navController: NavController) {
             )
         }
 
-        // Timer Section
+        // timer
         Text(
             text = "Focus Time",
             style = MaterialTheme.typography.titleLarge,
@@ -113,7 +113,7 @@ fun FocusScreen(navController: NavController) {
 
         Spacer(modifier = Modifier.height(32.dp))
 
-        // Sounds Section
+        // sounds
         Text(
             text = "Focus Sounds",
             style = MaterialTheme.typography.titleLarge,

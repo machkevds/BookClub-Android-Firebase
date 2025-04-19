@@ -1,4 +1,4 @@
-package com.kds.moveamenable.screens
+package com.kds.moveamenable.ui.screens
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column

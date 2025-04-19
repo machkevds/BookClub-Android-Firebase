@@ -1,4 +1,4 @@
-package com.kds.moveamenable.screens
+package com.kds.moveamenable.ui.screens
 
 
 import androidx.compose.foundation.layout.Arrangement
@@ -37,7 +37,7 @@ fun MainScreen(navController: NavController) {
             modifier = Modifier.padding(bottom = 48.dp)
         )
 
-                    // Button 1 - My Workouts
+                    // Myworkouts Button
                     Button(
                     onClick = { navController.navigate(Routes.MY_WORKOUTS) },
             modifier = Modifier
@@ -52,7 +52,7 @@ fun MainScreen(navController: NavController) {
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Button 2 - Focus Mode
+        // Focus button
         Button(
             onClick = { navController.navigate(Routes.FOCUS_TOOLS) },
             modifier = Modifier
@@ -67,7 +67,7 @@ fun MainScreen(navController: NavController) {
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Button 3 - Information
+        //  Information button
         Button(
             onClick = { navController.navigate(Routes.INFORMATION) },
             modifier = Modifier

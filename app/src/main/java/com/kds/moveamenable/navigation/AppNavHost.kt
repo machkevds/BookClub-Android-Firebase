@@ -4,11 +4,10 @@ import androidx.compose.runtime.Composable
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.kds.moveamenable.screens.BrowseScreen
-import com.kds.moveamenable.screens.FocusScreen
-import com.kds.moveamenable.screens.InformationScreen
-import com.kds.moveamenable.screens.MainScreen
-import com.kds.moveamenable.screens.MyWorkoutScreen
+import com.kds.moveamenable.ui.screens.FocusScreen
+import com.kds.moveamenable.ui.screens.InformationScreen
+import com.kds.moveamenable.ui.screens.MainScreen
+import com.kds.moveamenable.ui.screens.MyWorkoutScreen
 
 @Composable
 fun AppNavHost() {
