@@ -16,27 +16,20 @@ import com.kds.moveamenable.ui.theme.MoveAmenableTheme
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
+import androidx.navigation.compose.rememberNavController
 import com.kds.moveamenable.navigation.AppNavHost
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
-        StrictMode.setThreadPolicy(
-            StrictMode.ThreadPolicy.Builder()
-                .detectNetwork()       // detect networking on main thread
-                .detectDiskReads()     // optional
-                .detectDiskWrites()    // optional
-                .penaltyLog()          // log violations to Logcat
-                .build()
-        )
         setContent {
             MoveAmenableTheme {
                 Surface(
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    AppNavHost()
+                    val navController = rememberNavController()
+                    AppNavHost(navController)
                 }
             }
         }

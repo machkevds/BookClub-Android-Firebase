@@ -1,33 +1,24 @@
 package com.kds.moveamenable.navigation
 
 import androidx.compose.runtime.Composable
+import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import androidx.navigation.compose.rememberNavController
-import com.kds.moveamenable.ui.screens.FocusScreen
-import com.kds.moveamenable.ui.screens.InformationScreen
-import com.kds.moveamenable.ui.screens.MainScreen
-import com.kds.moveamenable.ui.screens.MyWorkoutScreen
+import com.kds.moveamenable.auth.AuthViewModel
+import com.kds.moveamenable.auth.SignInScreen
+// todo import com.kds.moveamenable.ui.screens.FeedScreen
 
 @Composable
-fun AppNavHost() {
-    val navController = rememberNavController()
+fun AppNavHost(navController: NavHostController) {
+    val authViewModel: AuthViewModel = viewModel()
 
-    NavHost(
-        navController = navController,
-        startDestination = Routes.MAIN_SCREEN
-    ) {
-        composable(Routes.MAIN_SCREEN) {
-            MainScreen(navController)
+    NavHost(navController, startDestination = if (authViewModel.isSignedIn.value) Routes.FEED else Routes.SIGN_IN) {
+        composable(Routes.SIGN_IN) {
+            SignInScreen(onSignedIn = { navController.navigate(Routes.FEED) })
         }
-        composable(Routes.MY_WORKOUTS) {
-            MyWorkoutScreen(navController)
-        }
-        composable(Routes.INFORMATION) {
-            InformationScreen(navController)
-        }
-        composable(Routes.FOCUS_TOOLS) {
-            FocusScreen(navController)
+        composable(Routes.FEED) {
+            // todo FeedScreen() // Stub, will be built in Stage 3
         }
     }
 }

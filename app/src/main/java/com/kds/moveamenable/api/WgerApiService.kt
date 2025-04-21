@@ -3,6 +3,7 @@ package com.kds.moveamenable.api
 import com.kds.moveamenable.models.ApiResponse
 import com.kds.moveamenable.models.CategoryResponse
 import com.kds.moveamenable.models.Exercise
+import com.kds.moveamenable.models.ExerciseBase
 import com.kds.moveamenable.models.ExerciseCategory
 import com.kds.moveamenable.models.ExerciseDetailResponse
 import com.kds.moveamenable.models.ExerciseResponse
@@ -20,11 +21,23 @@ interface WgerApiService {
         @Query("limit") limit: Int = 100
     ): ApiResponse<Exercise>
 
+    @GET("exerciseinfo/")
+    suspend fun getExerciseInfo(
+        @Query("language") language: Int = 2,
+        @Query("limit") limit: Int = 100
+    ): ApiResponse<ExerciseDetailResponse>
+
+
     @GET("exercise/{id}/")
     suspend fun getExerciseDetails(
         @Path("id") id: Int,
         @Query("language") language: Int = 2
     ): Exercise
+
+    @GET("exercisebase/")
+    suspend fun getExerciseBases(
+        @Query("limit") limit: Int = 200
+    ): ApiResponse<ExerciseBase>
 
     @GET("exercisecategory/")
     suspend fun getCategories():  ApiResponse<ExerciseCategory>

@@ -24,7 +24,7 @@ data class Exercise(
     val category: Int?,
     @SerializedName("muscles")
     val muscles: List<Int>,
-    @SerializedName("muscles_secondary")
+    @SerializedName("secondary_muscles")
     val secondaryMuscles: List<Int> = emptyList(),
     @SerializedName("equipment")
     val equipment: List<Int> = emptyList(),
@@ -36,6 +36,8 @@ data class Exercise(
     val license: Int? = null,
     @SerializedName("uuid")
     val uuid: String? = null,
+
+
 ) {
     fun displayName(): String {
         return name ?: originalName ?: "Exercise $id"
@@ -45,4 +47,5 @@ data class Exercise(
     fun debugString(): String {
         return "Exercise(id=$id, name=${name ?: "null"}, category=$category, muscles=${muscles.size})"
     }
+
 }

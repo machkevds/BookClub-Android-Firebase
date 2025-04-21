@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "285456128288",
+    "project_id": "moveamenableauth",
+    "storage_bucket": "moveamenableauth.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:285456128288:android:8bfba1d875731c68141f45",
+        "android_client_info": {
+          "package_name": "com.kds.moveamenable"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD9NLARU4eYf772x0Ng-ruCuVosaQHHLC8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
