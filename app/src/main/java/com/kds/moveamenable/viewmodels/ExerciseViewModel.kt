@@ -32,23 +32,32 @@ class ExerciseViewModel : ViewModel() {
     fun loadInitialData() {
         viewModelScope.launch {
             try {
+                println("[DEBUG] Coroutine started")
                 _isLoading.value = true
                 _error.value = null
 
                 // load reference data first
+                println("[DEBUG] Fetching categories...")
+                _categories.value = getCategoriesWithFallback().also {
+                    println("[DEBUG] Got ${it.size} categories")
+                }
+
+                println("[DEBUG] Fetching muscles...")
                 _muscles.value = getMusclesWithFallback()
-                _categories.value = getCategoriesWithFallback()
 
                 //load exercises
-                _exercises.value = getExercisesWithFallback()
+                println("[DEBUG] Fetching exercises...")
+                _exercises.value = getExercisesWithFallback().also {
+                    println("[DEBUG] Got ${it.size} exercises")
+                }
 
             } catch (e: Exception) {
-                _error.value = "Network error: ${e.message}"
-                //fallback 2 demo data
-                _exercises.value = createDemoExercises()
-                _categories.value = createDemoCategories()
-                _muscles.value = createDemoMuscles()
+                println("[DEBUG] FAILURE: ${e.javaClass.simpleName} - ${e.message}")
+                e.printStackTrace()
+                _error.value = "Data loading failed"
+
             } finally {
+                println("[DEBUG] Loading complete")
                 _isLoading.value = false
             }
         }
@@ -58,48 +67,80 @@ class ExerciseViewModel : ViewModel() {
     // fallback data creators
     private suspend fun getExercisesWithFallback(): List<Exercise> {
         return try {
-            val apiExercises = ApiClient.instance.getExercises().results
-            if (apiExercises.any { it.name != null }) apiExercises
-            else createDemoExercises()
+            println("[DEBUG] Attempting API exercise fetch...")
+            val apiResponse = ApiClient.instance.getExercises()
+            val apiExercises = apiResponse.results
+
+            // Enhanced debug logging
+            println("[DEBUG] Raw API response sample: ${apiResponse.results.take(3)}")
+
+            // Try alternative name field if primary is null
+            val exercisesWithNames = apiExercises.mapNotNull { apiExercise ->
+                when {
+                    !apiExercise.name.isNullOrBlank() -> apiExercise
+                    apiExercise.id != null -> {
+                        // If name is null but ID exists, create minimal valid exercise
+                        Exercise(
+                            id = apiExercise.id,
+                            name = "Exercise ${apiExercise.id}",
+                            originalName = null,  // Add this line,
+                            description = "Description not available",
+                            category = apiExercise.category ?: -1,
+                            muscles = apiExercise.muscles,
+                            equipment = apiExercise.equipment
+                        )
+                    }
+                    else -> null
+                }
+            }
+            if (exercisesWithNames.isNotEmpty()) {
+                println("[DEBUG] Using ${exercisesWithNames.size} API exercises")
+                exercisesWithNames
+            } else {
+                getDemoExercises()
+            }
         } catch (e: Exception) {
-            createDemoExercises()
+            println("[DEBUG] API Error: ${e.stackTraceToString()}")
+            getDemoExercises()
         }
     }
 
     private suspend fun getCategoriesWithFallback(): List<ExerciseCategory> {
         return try {
             ApiClient.instance.getCategories().results.ifEmpty {
-                createDemoCategories()
+                getDemoCategories()
             }
         } catch (e: Exception) {
-            createDemoCategories()
+            getDemoCategories()
         }
     }
 
     private suspend fun getMusclesWithFallback(): List<Muscle> {
         return try {
             ApiClient.instance.getMuscles().results.ifEmpty {
-                createDemoMuscles()
+                getDemoMuscles()
             }
         } catch (e: Exception) {
-            createDemoMuscles()
+            getDemoMuscles()
         }
     }
 
-    // demo data
-    private fun createDemoExercises(): List<Exercise> {
+    //demo data functions
+    private fun getDemoExercises(): List<Exercise> {
         return listOf(
             Exercise(
-                id = 1,
+                id = -1, // Flag as demo data
                 name = "Bench Press",
+                originalName = null,  // Add this line
                 description = "Lie on a bench and press the barbell upward",
                 category = 1,
                 muscles = listOf(1, 2),
                 equipment = listOf(1)
             ),
             Exercise(
-                id = 2,
+                id = -2,
                 name = "Squat",
+                originalName = null,  // Add this line
                 description = "Lower your body by bending knees then stand back up",
                 category = 2,
                 muscles = listOf(3, 4),
@@ -108,7 +149,7 @@ class ExerciseViewModel : ViewModel() {
         )
     }
 
-    private fun createDemoCategories(): List<ExerciseCategory> {
+    private fun getDemoCategories(): List<ExerciseCategory> {
         return listOf(
             ExerciseCategory(id = 1, name = "Chest"),
             ExerciseCategory(id = 2, name = "Legs"),
@@ -116,7 +157,7 @@ class ExerciseViewModel : ViewModel() {
         )
     }
 
-    private fun createDemoMuscles(): List<Muscle> {
+    private fun getDemoMuscles(): List<Muscle> {
         return listOf(
             Muscle(id = 1, name = "Pectorals", is_front = true),
             Muscle(id = 2, name = "Triceps", is_front = true),
@@ -125,7 +166,8 @@ class ExerciseViewModel : ViewModel() {
         )
     }
 
-    // filter functions
+
+    // Filter Functions
     fun getExercisesByCategory(categoryId: Int): List<Exercise> {
         return _exercises.value.filter { it.category == categoryId }
     }

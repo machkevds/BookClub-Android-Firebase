@@ -1,6 +1,7 @@
 package com.kds.moveamenable
 
 import android.os.Bundle
+import android.os.StrictMode
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -20,6 +21,15 @@ import com.kds.moveamenable.navigation.AppNavHost
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        StrictMode.setThreadPolicy(
+            StrictMode.ThreadPolicy.Builder()
+                .detectNetwork()       // detect networking on main thread
+                .detectDiskReads()     // optional
+                .detectDiskWrites()    // optional
+                .penaltyLog()          // log violations to Logcat
+                .build()
+        )
         setContent {
             MoveAmenableTheme {
                 Surface(

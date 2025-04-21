@@ -16,6 +16,11 @@ android {
         versionName "1.0"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+
+        // Read API key from local.properties
+        Properties properties = new Properties()
+        properties.load(project.rootProject.file('local.properties').newDataInputStream())
+        buildConfigField "String", "WGER_API_KEY", "\"${properties.getProperty('WGER_API_KEY')}\""
     }
 
     buildTypes {
@@ -33,6 +38,7 @@ android {
     }
     buildFeatures {
         compose true
+        buildConfig true
     }
 }
 
@@ -52,6 +58,14 @@ dependencies {
     implementation(libs.androidx.navigation.compose)
 
     implementation(platform(libs.androidx.compose.bom))
+
+    // Add for map navigation
+    implementation "com.google.maps.android:maps-compose:2.11.4"
+
+    implementation("com.squareup.okhttp3:logging-interceptor:4.12.0")
+
+    // Add for better JSON handling
+    implementation "com.squareup.retrofit2:converter-moshi:2.9.0"
 
     // Compose dependencies
     implementation(libs.androidx.compose.ui)

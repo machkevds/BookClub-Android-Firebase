@@ -26,6 +26,7 @@ import com.kds.moveamenable.models.Muscle
 @Composable
 fun InformationScreen(navController: NavController) {
     val viewModel: ExerciseViewModel = viewModel()
+
     var searchQuery by remember { mutableStateOf("") }
     var selectedCategory by remember { mutableStateOf<ExerciseCategory?>(null) }
     var selectedMuscle by remember { mutableStateOf<Muscle?>(null) }
@@ -35,6 +36,15 @@ fun InformationScreen(navController: NavController) {
     val exercises by viewModel.exercises.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
     val error by viewModel.error.collectAsState()
+
+    // Derived State
+    val filteredExercises = remember(exercises, searchQuery, selectedCategory, selectedMuscle) {
+        exercises.filter { exercise ->
+            (searchQuery.isEmpty() || exercise.name?.contains(searchQuery, true) == true) &&
+                    (selectedCategory == null || exercise.category == selectedCategory!!.id) &&
+                    (selectedMuscle == null || selectedMuscle!!.id in exercise.muscles)
+        }
+    }
 
     Column(modifier = Modifier.fillMaxSize()) {
         TopAppBar(
@@ -47,122 +57,154 @@ fun InformationScreen(navController: NavController) {
         )
 
         when {
-            isLoading -> {
-                CircularProgressIndicator(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .wrapContentSize()
-                )
-            }
-            error != null -> {
-                Text(
-                    text = error!!,
-                    color = MaterialTheme.colorScheme.error,
-                    modifier = Modifier.padding(16.dp)
-                )
-            }
+            isLoading -> FullScreenLoader()
+            error != null -> ErrorMessage(error!!)
             else -> {
-                OutlinedTextField(
-                    value = searchQuery,
-                    onValueChange = { searchQuery = it },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(16.dp),
-                    placeholder = { Text("Search exercises...") },
-                    leadingIcon = { Icon(Icons.Default.Search, contentDescription = "Search") }
+                SearchBar(searchQuery) { searchQuery = it }
+
+                // Add this debug preview
+                ExerciseDebugPreview(filteredExercises)
+
+                CategoryFilterRow(
+                    categories = categories,
+                    selectedCategory = selectedCategory,
+                    onCategorySelected = { selectedCategory = it }
                 )
 
-                // empty state check for new categories
-                if (categories.isEmpty()) {
+                MuscleFilterRow(
+                    muscles = muscles,
+                    selectedMuscle = selectedMuscle,
+                    onMuscleSelected = { selectedMuscle = it }
+                )
+
+                ExerciseList(
+                    exercises = filteredExercises,
+                    allExercises = exercises,
+                    categories = categories,
+                    muscles = muscles
+                )
+            }
+        }
+    }
+}
+
+
+
+// Componentized Sub-Composables
+
+@Composable
+private fun FullScreenLoader() {
+    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+        CircularProgressIndicator()
+    }
+}
+
+@Composable
+private fun ErrorMessage(error: String) {
+    Text(
+        text = error,
+        color = MaterialTheme.colorScheme.error,
+        modifier = Modifier.padding(16.dp)
+    )
+}
+
+@Composable
+private fun SearchBar(searchQuery: String, onSearchChange: (String) -> Unit) {
+    OutlinedTextField(
+        value = searchQuery,
+        onValueChange = onSearchChange,
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(16.dp),
+        placeholder = { Text("Search exercises...") },
+        leadingIcon = { Icon(Icons.Default.Search, contentDescription = "Search") }
+    )
+}
+
+@Composable
+private fun CategoryFilterRow(
+    categories: List<ExerciseCategory>,
+    selectedCategory: ExerciseCategory?,
+    onCategorySelected: (ExerciseCategory?) -> Unit
+) {
+    if (categories.isEmpty()) return
+
+    LazyRow(
+        modifier = Modifier.padding(horizontal = 16.dp),
+        horizontalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        item {
+            FilterChip(
+                selected = selectedCategory != null,
+                onClick = { onCategorySelected(null) },
+                label = { Text("All Categories") }
+            )
+        }
+        items(categories) { category ->
+            FilterChip(
+                selected = selectedCategory?.id == category.id,
+                onClick = { onCategorySelected(category) },
+                label = { Text(category.name ?: "Unnamed Category") }
+            )
+        }
+    }
+}
+
+@Composable
+private fun MuscleFilterRow(
+    muscles: List<Muscle>,
+    selectedMuscle: Muscle?,
+    onMuscleSelected: (Muscle?) -> Unit
+) {
+    if (muscles.isEmpty()) return
+
+    LazyRow(
+        modifier = Modifier.padding(16.dp),
+        horizontalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        item {
+            FilterChip(
+                selected = selectedMuscle != null,
+                onClick = { onMuscleSelected(null) },
+                label = { Text("All Muscles") }
+            )
+        }
+        items(muscles) { muscle ->
+            FilterChip(
+                selected = selectedMuscle?.id == muscle.id,
+                onClick = { onMuscleSelected(muscle) },
+                label = { Text(muscle.name ?: "Unnamed Muscle") }
+            )
+        }
+    }
+}
+
+@Composable
+private fun ExerciseDebugPreview(exercises: List<Exercise>) {
+    if (exercises.isNotEmpty()) {
+        Card(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(8.dp),
+            colors = CardDefaults.cardColors(
+                containerColor = MaterialTheme.colorScheme.errorContainer
+            )
+        ) {
+            Column(
+                modifier = Modifier.padding(8.dp)
+            ) {
+                Text(
+                    "DEBUG PREVIEW (First 3)",
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.onErrorContainer
+                )
+                Spacer(modifier = Modifier.height(4.dp))
+                exercises.take(3).forEach { ex ->
                     Text(
-                        "No categories loaded",
-                        modifier = Modifier.padding(16.dp),
-                        color = MaterialTheme.colorScheme.error
+                        text = ex.debugString(),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onErrorContainer
                     )
-                } else {
-                    LazyRow(
-                        modifier = Modifier.padding(horizontal = 16.dp),
-                        horizontalArrangement = Arrangement.spacedBy(8.dp)
-                    ) {
-                        item {
-                            FilterChip(
-                                selected = selectedCategory != null,
-                                onClick = { selectedCategory = null },
-                                label = { Text("All Categories") }
-                            )
-                        }
-                        items(categories) { category ->
-                            FilterChip(
-                                selected = selectedCategory?.id == category.id,
-                                onClick = { selectedCategory = category },
-                                label = { Text(category.name ?: "Unnamed Category") } // Null-safe
-                            )
-                        }
-                    }
-                }
-
-                // empty state check for muscles
-                if (muscles.isEmpty()) {
-                    Text(
-                        "No muscles loaded",
-                        modifier = Modifier.padding(16.dp),
-                        color = MaterialTheme.colorScheme.error
-                    )
-                } else {
-                    LazyRow(
-                        modifier = Modifier.padding(16.dp),
-                        horizontalArrangement = Arrangement.spacedBy(8.dp)
-                    ) {
-                        item {
-                            FilterChip(
-                                selected = selectedMuscle != null,
-                                onClick = { selectedMuscle = null },
-                                label = { Text("All Muscles") }
-                            )
-                        }
-                        items(muscles) { muscle ->
-                            FilterChip(
-                                selected = selectedMuscle?.id == muscle.id,
-                                onClick = { selectedMuscle = muscle },
-                                label = { Text(muscle.name ?: "Unnamed Muscle") } // Null-safe
-                            )
-                        }
-                    }
-                }
-
-                // main exercise list w/ empty state
-                val filteredExercises = remember(searchQuery, selectedCategory, selectedMuscle) {
-                    exercises.filter { exercise ->
-                        (searchQuery.isEmpty() ||
-                                exercise.name?.contains(searchQuery, true) == true) && // Null-safe
-                                (selectedCategory == null || exercise.category == selectedCategory!!.id) &&
-                                (selectedMuscle == null || selectedMuscle!!.id in exercise.muscles)
-                    }
-                }
-
-                LazyColumn(modifier = Modifier.padding(horizontal = 16.dp)) {
-                    if (filteredExercises.isEmpty()) {
-                        item {
-                            Text(
-                                text = if (exercises.isEmpty()) "No exercises loaded"
-                                else "No matching exercises found",
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(24.dp),
-                                textAlign = TextAlign.Center
-                            )
-                        }
-                    }
-                    items(filteredExercises) { exercise ->
-                        ExpandableExerciseCard(
-                            exercise = exercise,
-                            categoryName = categories.find { it.id == exercise.category }?.name
-                                ?: "Unknown",
-                            muscleNames = exercise.muscles.mapNotNull { muscleId ->
-                                muscles.find { it.id == muscleId }?.name
-                            }
-                        )
-                    }
                 }
             }
         }
@@ -170,7 +212,46 @@ fun InformationScreen(navController: NavController) {
 }
 
 @Composable
-fun ExpandableExerciseCard(
+private fun ExerciseList(
+    exercises: List<Exercise>,
+    allExercises: List<Exercise>,
+    categories: List<ExerciseCategory>,
+    muscles: List<Muscle>
+) {
+    LazyColumn(modifier = Modifier
+        .padding(horizontal = 16.dp)
+        .fillMaxSize()
+    ) {
+        if (exercises.isEmpty()) {
+            item {
+                Text(
+                    text = if (allExercises.isEmpty()) "No exercises loaded"
+                    else "No matching exercises found",
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(24.dp),
+                    textAlign = TextAlign.Center
+                )
+            }
+        } else {
+            items(
+                items = exercises,
+                key = { exercise -> exercise.id ?: -1 } // Ensure unique keys
+            ) { exercise ->
+                ExpandableExerciseCard(
+                    exercise = exercise,
+                    categoryName = categories.find { it.id == exercise.category }?.name ?: "Unknown",
+                    muscleNames = exercise.muscles.mapNotNull { muscleId ->
+                        muscles.find { it.id == muscleId }?.name
+                    }
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun ExpandableExerciseCard(
     exercise: Exercise,
     categoryName: String?,
     muscleNames: List<String?>
@@ -185,12 +266,10 @@ fun ExpandableExerciseCard(
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
             Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = exercise.name ?: "Unnamed Exercise", // [NEW] Null-safe
+                    text = exercise.displayName(),
                     style = MaterialTheme.typography.titleMedium
                 )
                 Icon(
@@ -205,10 +284,9 @@ fun ExpandableExerciseCard(
                 Text("Muscles: ${muscleNames.filterNotNull().joinToString()}")
                 Spacer(modifier = Modifier.height(8.dp))
                 Text(
-                    text = exercise.description ?: "No description available", // [NEW] Null-safe
+                    text = exercise.description ?: "No description available",
                     style = MaterialTheme.typography.bodyMedium
                 )
-
                 Button(
                     onClick = { /* TODO */ },
                     modifier = Modifier.padding(top = 8.dp)
