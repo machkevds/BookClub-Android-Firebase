@@ -7,5 +7,7 @@ object Routes {
     const val SEARCH = "book_search"
     const val READING_LIST = "reading_list"
     const val BOOK_DETAIL = "book_detail"
+    const val MAIN = "main"
+
 
 }
