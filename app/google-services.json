@@ -1,26 +1,44 @@
 {
   "project_info": {
-    "project_number": "285456128288",
-    "project_id": "moveamenableauth",
-    "storage_bucket": "moveamenableauth.firebasestorage.app"
+    "project_number": "257367365266",
+    "project_id": "bookclubauth-a19fd",
+    "storage_bucket": "bookclubauth-a19fd.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:285456128288:android:8bfba1d875731c68141f45",
+        "mobilesdk_app_id": "1:257367365266:android:9b2f5e5aacebf6116bb84b",
         "android_client_info": {
-          "package_name": "com.kds.moveamenable"
+          "package_name": "com.kds.bookclub"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "257367365266-9p3cus295pbcrehn5kgc2hrp8ll6krqe.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.kds.bookclub",
+            "certificate_hash": "4d91ce8a1ecb284be975749ea8894da9ca360ce7"
+          }
+        },
+        {
+          "client_id": "257367365266-v1qejhba0g5ffujr6anki68740r7n59e.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
-          "current_key": "AIzaSyD9NLARU4eYf772x0Ng-ruCuVosaQHHLC8"
+          "current_key": "AIzaSyCKSG285hejC3DPL4Dr2xJufKH2NTi1qnw"
         }
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "257367365266-v1qejhba0g5ffujr6anki68740r7n59e.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
         }
       }
     }
