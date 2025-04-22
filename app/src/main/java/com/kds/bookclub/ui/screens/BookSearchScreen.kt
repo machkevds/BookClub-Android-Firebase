@@ -10,6 +10,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import com.google.firebase.auth.FirebaseAuth
 import com.kds.bookclub.ui.components.BookCard
 import com.kds.bookclub.ui.components.FancyBackButton
 import com.kds.bookclub.viewmodels.BookSearchViewModel
@@ -47,9 +48,23 @@ fun BookSearchScreen(navController: NavController, vm: BookSearchViewModel = vie
 
         LazyColumn {
             items(books) { book ->
-                BookCard(book = book) {
-                    navController.currentBackStackEntry?.savedStateHandle?.set("book", book)
-                    navController.navigate(Routes.BOOK_DETAIL)
+                Column(Modifier.padding(8.dp)) {
+                    BookCard(book = book) {
+                        navController.currentBackStackEntry?.savedStateHandle?.set("book", book)
+                        navController.navigate(Routes.BOOK_DETAIL)
+                    }
+
+                    // Add to Reading List Button
+                    Button(
+                        onClick = {
+                            val userName = FirebaseAuth.getInstance().currentUser?.displayName ?: "Anonymous"
+                            vm.addBookToReadingList(book, userName)
+                        },
+                        colors = ButtonDefaults.buttonColors(MaterialTheme.colorScheme.secondary),
+                        modifier = Modifier.fillMaxWidth().padding(top = 4.dp)
+                    ) {
+                        Text("Add to Reading List")
+                    }
                 }
             }
         }

@@ -1,5 +1,6 @@
 package com.kds.bookclub.ui.screens
 
+import android.util.Log
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -20,7 +21,13 @@ import com.kds.bookclub.navigation.Routes
 
 @Composable
 fun ReadingListScreen(navController: NavController, vm: ReadingListViewModel = viewModel()) {
+    Log.d("ReadingListScreen", "Composable launched")
     val books by vm.books.collectAsState()
+
+    Log.d("ReadingListScreen", "Collected ${books.size} books")
+    books.forEach { entry ->
+        Log.d("ReadingListScreen", "Book Entry - id: ${entry.id}, title: ${entry.title}, authors: ${entry.authors}")
+    }
 
     Column(Modifier.fillMaxSize().padding(16.dp)) {
         FancyBackButton(navController, destination = Routes.MAIN)
@@ -45,7 +52,7 @@ fun ReadingListEntry.toBook(): Book {
         id = this.id,
         title = this.title,
         authors = this.authors,
-        thumbnail = "",            //placeholder
-        description = ""
+        thumbnail = this.thumbnail ?: "", // safer in case null
+        description = "" // placeholder
     )
 }

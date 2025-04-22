@@ -2,7 +2,6 @@ package com.kds.bookclub.data.repositories
 
 // helps with reading list interactions with Firestore
 // manages adding/removing books and observing shared list state
-
 import com.google.firebase.firestore.FirebaseFirestore
 import com.kds.bookclub.data.models.Book
 import com.kds.bookclub.data.models.ReadingListEntry
@@ -16,7 +15,8 @@ object BookRepository {
         val entry = ReadingListEntry(
             id = book.id,
             title = book.title,
-            authors = book.authors,
+            // authors will always be a list
+            authors = book.authors ?: emptyList(),
             thumbnail = book.thumbnail,
             addedBy = addedBy
         )

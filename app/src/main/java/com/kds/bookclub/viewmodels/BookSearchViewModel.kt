@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.kds.bookclub.api.GoogleBooksApi
 import com.kds.bookclub.data.models.Book
+import com.kds.bookclub.data.repositories.BookRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -53,4 +54,12 @@ class BookSearchViewModel : ViewModel() {
             Book("mock3", "$query - Mock Book Three", listOf("Author C"), null, "Description C")
         )
     }
+
+    //adds book to reading list
+    fun addBookToReadingList(book: Book, addedBy: String) {
+        viewModelScope.launch {
+            BookRepository.addBook(book, addedBy)
+        }
+    }
+
 }
