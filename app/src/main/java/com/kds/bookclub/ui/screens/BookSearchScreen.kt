@@ -1,5 +1,5 @@
 package com.kds.bookclub.ui.screens
-
+//displays search bar and book list, book detail navigation
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -8,11 +8,14 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavController
+import com.kds.bookclub.data.models.Book
+import com.kds.bookclub.navigation.Routes
 import com.kds.bookclub.ui.components.BookCard
 import com.kds.bookclub.viewmodels.BookSearchViewModel
 
 @Composable
-fun BookSearchScreen() {
+fun BookSearchScreen(navController: NavController) {
     val vm: BookSearchViewModel = viewModel()
     val books by vm.books.collectAsState()
     val isLoading by vm.isLoading.collectAsState()
@@ -38,7 +41,14 @@ fun BookSearchScreen() {
         } else {
             LazyColumn {
                 items(books) { book ->
-                    BookCard(book)
+                    BookCard(
+                        book = book,
+                        onClick = {
+                            //attempt to pass the book via SavedStateHandle
+                            navController.currentBackStackEntry?.savedStateHandle?.set("book", book)
+                            navController.navigate("${Routes.BOOK_DETAIL}/${book.id}")
+                        }
+                    )
                 }
             }
         }
